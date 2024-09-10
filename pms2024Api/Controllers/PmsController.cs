@@ -150,21 +150,21 @@ namespace pms2024Api.Controllers
         /// <summary>
         /// 取得財產編號流水號
         /// </summary>
-        /// <param name="suject">科目</param>
-        /// <param name="cild">子目</param>
-        /// <param name="category">類別</param>
+        /// <param name="科目">科目</param>
+        /// <param name="子目">子目</param>
+        /// <param name="類別">類別</param>
         /// <returns></returns>
         [HttpGet("GetProNo")]
         [SwaggerOperation(Summary = "取得財產編號流水號", Description = "這個方法回傳取得財產編號流水號最大值加 1。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(string))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
-        public ActionResult<string> GetProNo(string suject, string cild, string category)
+        public ActionResult<string> GetProNo(string 科目, string 子目, string 類別)
         {
             try
             {
                 // 取得財產編號流水號
                 var reault = _context.Pros
-                    .Where(c => c.科目 == suject && c.子目== cild && c.類別 == category)
+                    .Where(c => c.科目 == 科目 && c.子目== 子目.Substring(1,2) && c.類別 == 類別)
                     .Select(c => c.總項)
                     .ToList();
 
@@ -565,6 +565,61 @@ namespace pms2024Api.Controllers
         }
 
         /// <summary>
+        /// 取得財產匯總
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("GetSubjectSummary")]
+        [EnableCors("AllowAllOrigins")]
+        [SwaggerOperation(Summary = "取得財產匯總", Description = "此API用於取得各科目的財產匯總資訊。")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<SubjectSummaryDto>))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
+        public ActionResult<IEnumerable<SubjectSummaryDto>> GetSubjectSummary()
+        {
+            try
+            {
+                // 取得科目和取得財產匯總
+                var result = _context.Pros
+                    .Where(p => p.財產狀態 != "2")
+                    .GroupBy(p => p.科目)
+                    .Select(g => new
+                    {
+                        科目代號 = g.Key,
+                        取得價值 = g.Sum(p => p.取得價值 ?? 0)
+                    })
+                    .OrderBy(p => p.科目代號)
+                    .ToList();
+
+                // 執行查詢結果後，將科目代號轉為科目名稱
+                var subjectSummaryList = result.Select(g => new SubjectSummaryDto
+                {
+                    科目代號 = g.科目代號,
+                    科目名稱 = g.科目代號 switch
+                    {
+                        "1" => "土地",
+                        "2" => "房屋及建築",
+                        "3" => "機器及設備",
+                        "4" => "電腦設備",
+                        "5" => "農林設備",
+                        "6" => "畜產設備",
+                        "7" => "交通運輸設備",
+                        "8" => "雜項設備",
+                        "9" => "未完工程",
+                        _ => "未知科目"
+                    },
+                    取得價值 = g.取得價值
+                }).ToList();
+
+                return Ok(subjectSummaryList);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"取得財產匯總異常: {ex.Message}");
+                return BadRequest($"取得財產匯總異常: {ex.Message}");
+            }
+        }
+
+
+        /// <summary>
         /// 取得群組代號
         /// </summary>
         /// <returns></returns>
@@ -876,21 +931,25 @@ namespace pms2024Api.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, "Error saving data.");
             }
 
-            return CreatedAtAction(nameof(GetProById), new { id = pro.科目 }, pro);
+            return Ok(new { 科目 = pro.科目, 子目 = pro.子目, 類別 = pro.類別, 總項 = pro.總項 });
         }
 
         /// <summary>
         /// 查詢財產主檔
         /// </summary>
-        /// <param name="id">科目</param>
+        /// <param name="科目">科目</param>
+        /// <param name="子目">子目</param>
+        /// <param name="類別">類別</param>
+        /// <param name="總項">總項</param>
         /// <returns></returns>
-        [HttpGet("GetProById/{id}")]
+        [HttpGet("GetProById/{科目}/{子目}/{類別}/{總項}")]
         [SwaggerOperation(Summary = "查詢財產主檔", Description = "這個方法用於查詢財產主檔。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<Pro>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
-        public async Task<ActionResult<Pro>> GetProById(string id)
+        public async Task<ActionResult<Pro>> GetProById(string 科目, string 子目, string 類別, string 總項)
         {
-            var pro = await _context.Pros.FindAsync(id);
+            var pro = await _context.Pros.FindAsync(科目, 子目, 類別, 總項);
+
             if (pro == null)
             {
                 return NotFound();

@@ -68,6 +68,14 @@ namespace pms2024Api.Data
         public string GroupId { get; set; }
     }
 
+    public class SubjectSummaryDto
+    {
+        public string 科目代號 { get; set; }
+        public string 科目名稱 { get; set; }
+        public double 取得價值 { get; set; }
+    }
+
+
     [Table("gpass")]
     public class Gpass
     {
