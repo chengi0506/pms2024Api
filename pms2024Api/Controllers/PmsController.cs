@@ -14,6 +14,7 @@ using System.Runtime;
 
 namespace pms2024Api.Controllers
 {
+    [EnableCors("AllowAllOrigins")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]  // 版本 1.0
@@ -36,7 +37,6 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("Login")]
-        [EnableCors("AllowAllOrigins")]
         [SwaggerOperation(Summary = "登入", Description = "這個方法用於登入。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<Cuser>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -274,7 +274,7 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <param name="coded">代碼</param>
         /// <returns></returns>
-        [HttpPut("UpdateCode")]
+        [HttpPost("UpdateCode")]
         [SwaggerOperation(Summary = "修改代碼", Description = "這個方法用於修改代碼。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(Coded))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -344,7 +344,6 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetCuser")]
-        [EnableCors("AllowAllOrigins")]
         [SwaggerOperation(Summary = "取得使用者", Description = "這個方法用於取得使用者。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<Cuser>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -417,7 +416,7 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <param name="cuser">使用者</param>
         /// <returns></returns>
-        [HttpPut("UpdateCuserInfo")]
+        [HttpPost("UpdateCuserInfo")]
         [SwaggerOperation(Summary = "修改使用者資訊", Description = "這個方法用於修改使用者資訊。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(Cuser))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -504,10 +503,11 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPut("UpdatePassword")]
+        [HttpPost("UpdatePassword")]
         [SwaggerOperation(Summary = "修改密碼", Description = "這個方法用於修改密碼。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(Login))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
+
         public async Task<IActionResult> UpdatePassword([FromBody] PasswordChangeRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.UserId) || string.IsNullOrEmpty(request.OldPassword) || string.IsNullOrEmpty(request.NewPassword))
@@ -546,7 +546,6 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetSysSetting")]
-        [EnableCors("AllowAllOrigins")]
         [SwaggerOperation(Summary = "取得系統基本設定", Description = "這個方法用於取得系統基本設定。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<Basedat>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -569,7 +568,6 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetSubjectSummary")]
-        [EnableCors("AllowAllOrigins")]
         [SwaggerOperation(Summary = "取得財產匯總", Description = "此API用於取得各科目的財產匯總資訊。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<SubjectSummaryDto>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -624,7 +622,6 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetGpassGroupID")]
-        [EnableCors("AllowAllOrigins")]
         [SwaggerOperation(Summary = "取得群組代號", Description = "這個方法用於取得群組代號。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<int>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -651,7 +648,6 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetGpass")]
-        [EnableCors("AllowAllOrigins")]
         [SwaggerOperation(Summary = "取得群組權限", Description = "這個方法用於取得群組權限。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<Gpass>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -677,7 +673,6 @@ namespace pms2024Api.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("GetGpassById")]
-        [EnableCors("AllowAllOrigins")]
         [SwaggerOperation(Summary = "取得群組權限(依群組代號)", Description = "這個方法用於取得群組權限(依群組代號)。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<Gpass>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -708,7 +703,7 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <param name="groupid"></param>
         /// <returns></returns>
-        [HttpPut("CreateGroup")]
+        [HttpPost("CreateGroup")]
         [SwaggerOperation(Summary = "建立群組", Description = "這個方法用於建立群組。")]
         [SwaggerResponse((int)HttpStatusCode.Created, "操作成功", typeof(Gpass))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -793,7 +788,7 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <param name="_Gpass"></param>
         /// <returns></returns>
-        [HttpPut("UpdatePermissionLevel")]
+        [HttpPost("UpdatePermissionLevel")]
         [SwaggerOperation(Summary = "更新權限等級", Description = "這個方法用於更新權限等級。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(Gpass))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -832,7 +827,7 @@ namespace pms2024Api.Controllers
     /// </summary>
     /// <param name="_basedat"></param>
     /// <returns></returns>
-    [HttpPut("UpdateSysSetting")]
+    [HttpPost("UpdateSysSetting")]
         [SwaggerOperation(Summary = "更新系統基本設定", Description = "這個方法用於更新系統基本設定。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(Basedat))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -885,7 +880,6 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetProLists")]
-        [EnableCors("AllowAllOrigins")]
         [SwaggerOperation(Summary = "取得財產主檔清單", Description = "這個方法用於取得財產主檔清單。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(IEnumerable<Pro>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]
@@ -964,7 +958,7 @@ namespace pms2024Api.Controllers
         /// </summary>
         /// <param name="_pro">財產主檔</param>
         /// <returns></returns>
-        [HttpPut("EditProList")]
+        [HttpPost("EditProList")]
         [SwaggerOperation(Summary = "修改財產主檔", Description = "這個方法用於修改財產主檔。")]
         [SwaggerResponse((int)HttpStatusCode.OK, "操作成功", typeof(Pro))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, "無效的請求")]

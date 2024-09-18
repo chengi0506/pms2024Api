@@ -15,10 +15,32 @@ var builder = WebApplication.CreateBuilder(args);
 var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
-// 添加服務到容器中
-builder.Services.AddControllers();  // 添加控制器服務
+
+builder.Services.AddControllers();
+
+// 添加 CORS 策略
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()  // 允許來自所有來源的請求
+                   .AllowAnyMethod()  // 允許所有HTTP方法
+                   .AllowAnyHeader() // 允許所有標頭
+                   .WithMethods("PUT", "DELETE", "GET", "POST"); 
+        });
+
+    //options.AddPolicy("AllowSpecificOrigins",
+    //    builder =>
+    //    {
+    //        builder.WithOrigins("http://localhost:3000")
+    //               .AllowAnyMethod()
+    //               .AllowAnyHeader();
+    //    });
+});
+
 builder.Services.AddEndpointsApiExplorer();  // 添加端點 API 探索服務
-builder.Services.AddHttpClient();  // 添加 HTTP 客戶端服務
+//builder.Services.AddHttpClient();  // 添加 HTTP 客戶端服務
 builder.Services.AddSwaggerGen(c =>
 {
     // 為每個 API 版本生成 Swagger 文檔
@@ -44,17 +66,7 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddDbContext<PmsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetSection("Settings:SqlConn").Value));
 
-// 添加 CORS 策略
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAllOrigins",
-        builder =>
-        {
-            builder.AllowAnyOrigin()  // 允許任何來源
-                   .AllowAnyMethod()  // 允許任何方法
-                   .AllowAnyHeader();  // 允許任何標頭
-        });
-});
+builder.Services.AddControllers();// 添加控制器服務
 
 var app = builder.Build();
 
@@ -67,17 +79,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();  // 使用 Swagger 中間件
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "pms2024Api v1");  // 配置 Swagger UI 端點
-        c.SwaggerEndpoint("/swagger/v2/swagger.json", "pms2024Api v2");  // 配置 Swagger UI 端點
+        // 配置 Swagger UI 端點
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "pms2024Api v1");
+        c.SwaggerEndpoint("/swagger/v2/swagger.json", "pms2024Api v2");  
     });
 }
 
-app.UseCors("AllowAllOrigins");  // 應用 CORS 策略
+app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("AllowAllOrigins"); // 使用 CORS 策略.
 
-app.UseHttpsRedirection();  // 強制使用 HTTPS
+app.UseAuthorization();
 
-app.UseAuthorization();  // 使用授權中間件
+app.MapControllers();
 
-app.MapControllers();  // 映射控制器路由
+app.MapFallbackToFile("/index.html");
 
-app.Run();  // 運行應用程式
+app.Run();
